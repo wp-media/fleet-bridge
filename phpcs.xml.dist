@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<ruleset name="fleet-bridge">
+	<description>PSR-12, not the WordPress standard: this package is framework
+	agnostic on purpose and only its adapters touch WordPress.</description>
+
+	<file>src</file>
+	<file>tests</file>
+
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<rule ref="PSR12">
+		<!-- Tabs and the brace style match the plugins that install this, so a
+			 reviewer moving between the two repositories is not reformatting in
+			 their head. -->
+		<exclude name="Generic.WhiteSpace.DisallowTabIndent"/>
+		<exclude name="Generic.WhiteSpace.ScopeIndent"/>
+	</rule>
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+</ruleset>
