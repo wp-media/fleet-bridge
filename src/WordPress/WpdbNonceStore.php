@@ -28,10 +28,19 @@ use WPMedia\FleetBridge\Contract\NonceStore;
  *
  * ## Growth
  *
- * A row per honoured command, so it grows with real usage rather than with
- * traffic — a refused token is never recorded. {@see self::purge()} deletes
- * everything already expired and is safe to call from any schedule; the expiry
- * is in the row's value so no separate timeout row is needed.
+ * A row per credential honoured — so two per request for a host that checks
+ * both a command and a grant. It grows with real usage rather than with
+ * traffic: a refused token is never recorded, and nothing is written unless a
+ * request was believed.
+ *
+ * Rows are written with `autoload = 'no'`, so however many there are they
+ * never reach an ordinary page load. **A host must schedule
+ * {@see self::purge()}**, which deletes everything already expired; it is safe
+ * to call at any interval and safe to call twice, and the expiry lives in the
+ * row's value so no separate timeout row is needed. Nothing here depends on it
+ * for correctness — an expired token is refused on its own `exp` whether or
+ * not its row is still present — so a host that forgets pays in table size and
+ * never in permission.
  */
 final class WpdbNonceStore implements NonceStore
 {
