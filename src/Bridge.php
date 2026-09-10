@@ -8,6 +8,7 @@ use WPMedia\FleetBridge\Contract\Clock;
 use WPMedia\FleetBridge\Contract\KeySets;
 use WPMedia\FleetBridge\Contract\NonceStore;
 use WPMedia\FleetBridge\Contract\TrustStore;
+use WPMedia\FleetBridge\Contract\Verifier;
 use WPMedia\FleetBridge\Exception\NotAuthorised;
 
 /**
@@ -51,7 +52,7 @@ use WPMedia\FleetBridge\Exception\NotAuthorised;
  * verifies that a command is Fleet's, that it names this site, and that the
  * owner allows it — and that is the whole of it.
  */
-final class Bridge
+final class Bridge implements Verifier
 {
 	/**
 	 * What a caller is told when anything at all is wrong.

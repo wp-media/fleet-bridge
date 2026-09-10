@@ -7,6 +7,7 @@ namespace WPMedia\FleetBridge\Tests;
 use PHPUnit\Framework\TestCase;
 use WPMedia\FleetBridge\Base64Url;
 use WPMedia\FleetBridge\Bridge;
+use WPMedia\FleetBridge\Contract\Verifier;
 use WPMedia\FleetBridge\Config;
 use WPMedia\FleetBridge\Contract\TrustStore;
 use WPMedia\FleetBridge\Exception\NotAuthorised;
@@ -98,6 +99,14 @@ final class BridgeTest extends TestCase
 	}
 
 	// --- what is accepted ---------------------------------------------------
+
+	public function testIsAVerifierSoAHostCanDoubleIt(): void
+	{
+		// Not a tautology. Hosts type-hint the interface precisely so their own
+		// routes are testable without signing real tokens, and dropping it here
+		// would break every one of them at the type level rather than visibly.
+		$this->assertInstanceOf(Verifier::class, $this->bridge);
+	}
 
 	public function testAValidCommandIsAccepted(): void
 	{

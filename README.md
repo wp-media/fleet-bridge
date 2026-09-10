@@ -83,6 +83,13 @@ try {
 }
 ```
 
+**Type your route against `Contract\Verifier`, not against `Bridge`.** `Bridge`
+is `final` — verification is security critical, and a subclass overriding half
+a check is a hole that looks like a customisation — which means a route holding
+the concrete class cannot be doubled, and the only way left to test the route's
+own refusals is to sign real tokens in your suite. That tests this package
+again, not your route.
+
 The only thing you must write is a `TrustStore`, because where trust comes from
 is your business:
 
@@ -145,7 +152,8 @@ set is tried, so a substituted set would be enough to forge commands.
 
 ```
 src/                 no WordPress. Unit tested without it.
-src/Contract/        the four seams a host fills: trust, keys, nonces, clock
+src/Contract/        the four seams a host fills: trust, keys, nonces, clock,
+                     plus Verifier, the seam a host depends on
 src/WordPress/       adapters. Optional — implement the contracts yourself if
                      you have a better HTTP layer or a durable nonce store.
 ```
