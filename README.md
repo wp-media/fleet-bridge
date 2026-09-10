@@ -52,6 +52,15 @@ This package verifies that a command is Fleet's, that it names *this* site, and
 that the owner allows it. That is the whole of it, and the boundary is
 deliberate rather than an omission.
 
+## Install
+
+```bash
+composer require wp-media/fleet-bridge
+```
+
+PHP 7.4+, and libsodium — which has shipped with PHP since 7.2, so in practice
+there is nothing to install.
+
 ## Using it
 
 ```php
