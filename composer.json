@@ -1,0 +1,32 @@
+{
+	"name": "wp-media/fleet-bridge",
+	"description": "Accept verified commands from Fleet in a WordPress plugin: a command signed by Fleet, plus a consent grant signed by the licence vendor.",
+	"type": "library",
+	"license": "GPL-3.0-or-later",
+	"require": {
+		"php": ">=7.4",
+		"ext-sodium": "*",
+		"ext-json": "*"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^9.6",
+		"squizlabs/php_codesniffer": "^3.7"
+	},
+	"autoload": {
+		"psr-4": {
+			"WPMedia\\FleetBridge\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"WPMedia\\FleetBridge\\Tests\\": "tests/"
+		}
+	},
+	"config": {
+		"sort-packages": true
+	},
+	"scripts": {
+		"test": "phpunit",
+		"lint": "phpcs"
+	}
+}
