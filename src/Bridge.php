@@ -74,9 +74,24 @@ final class Bridge
 	private const BODY_BOUND_CLAIMS = [ 'digest' ];
 
 	/**
-	 * The shape of a GRND profile GRN, whose type segment is the tag.
+	 * The type segment of a GRND profile GRN, which carries the tag.
 	 */
-	private const PROFILE_PATTERN = '#^grn:2@int:grnd::(?P<tag>[a-zA-Z0-9_-]{1,32})/(?P<nonce>[a-zA-Z0-9\-:@_./]{0,127}[a-zA-Z0-9])$#';
+	private const TAG_PATTERN = '[a-zA-Z0-9_-]{1,32}';
+
+	/**
+	 * The identifier segment, which carries a single-use nonce.
+	 */
+	private const NONCE_PATTERN = '[a-zA-Z0-9\-:@_./]{0,127}[a-zA-Z0-9]';
+
+	/**
+	 * The shape of a GRND profile GRN.
+	 *
+	 * Composed from the two segments rather than written as one string, so each
+	 * half can be read without counting brackets.
+	 */
+	private const PROFILE_PATTERN = '#^grn:2@int:grnd::'
+		. '(?P<tag>' . self::TAG_PATTERN . ')'
+		. '/(?P<nonce>' . self::NONCE_PATTERN . ')$#';
 
 	/**
 	 * @var TrustStore
