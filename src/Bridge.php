@@ -31,7 +31,7 @@ use WPMedia\FleetBridge\Exception\NotAuthorised;
  * | Credential | Signed by | Proves |
  * |---|---|---|
  * | command | Fleet | who is asking, and covers the exact body bytes |
- * | consent grant | the licence vendor | the owner allows this capability on this site, right now |
+ * | consent grant | the licence vendor | the owner of this install's licence allows this capability here, right now |
  *
  * **Fleet must not sign the consent.** It is the party being granted the
  * access, and a grantee attesting its own grant proves nothing at all.
@@ -256,6 +256,11 @@ final class Bridge implements Verifier
 			throw new NotAuthorised('The grant does not cover ' . $requiredScope . '.');
 		}
 
+		if (TrustStore::CONSENT === $role) {
+			$licence = $claims->get('licence_id', '');
+			$this->assertOwnLicence(is_string($licence) ? $licence : '');
+		}
+
 		$this->spend($claims->identifier(), (int) $payload['exp']);
 
 		return $claims;
@@ -324,6 +329,31 @@ final class Bridge implements Verifier
 
 		if (! hash_equals($expected, $issuer)) {
 			throw new NotAuthorised('Unknown ' . $role . ' issuer.');
+		}
+	}
+
+	/**
+	 * Did the licence installed here consent, and not another one listing this host.
+	 *
+	 * The vendor lets any licence list any domain, so a grant naming this host
+	 * can come from a stranger's licence. Only the one this install runs under counts.
+	 *
+	 * @param string $licence The grant's `licence_id` claim.
+	 *
+	 * @return void
+	 *
+	 * @throws NotAuthorised When it is another licence, or this install was not told its own.
+	 */
+	private function assertOwnLicence(string $licence): void
+	{
+		$expected = $this->trust->licence();
+
+		if ('' === $expected) {
+			throw new NotAuthorised('No licence has been served to this install, so no grant can be its own.');
+		}
+
+		if (! hash_equals($expected, $licence)) {
+			throw new NotAuthorised('The grant is from another licence.');
 		}
 	}
 

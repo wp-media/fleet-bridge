@@ -56,4 +56,18 @@ interface TrustStore
 	 * @return string Empty when this install has not been told.
 	 */
 	public function keySetUrl(string $role): string;
+
+	/**
+	 * The licence this install runs under, as its vendor identifies it.
+	 *
+	 * Compared against a consent grant's `licence_id`. A domain can be listed on
+	 * more than one licence, so "the vendor vouches for this host" is not enough:
+	 * only the owner of the licence installed here may consent for it.
+	 *
+	 * Delivered the same way as the issuers, over the channel the install already
+	 * authenticates with its own licence key.
+	 *
+	 * @return string Empty when this install has not been told.
+	 */
+	public function licence(): string;
 }

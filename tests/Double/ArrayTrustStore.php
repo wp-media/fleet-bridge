@@ -20,6 +20,29 @@ final class ArrayTrustStore implements TrustStore
 	private $roles = [];
 
 	/**
+	 * @var string
+	 */
+	private $licence = '';
+
+	/**
+	 * @param string $licence The licence this install runs under.
+	 *
+	 * @return void
+	 */
+	public function runUnder(string $licence): void
+	{
+		$this->licence = $licence;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function licence(): string
+	{
+		return $this->licence;
+	}
+
+	/**
 	 * @param string $role   A role constant.
 	 * @param string $issuer Issuer GRN.
 	 * @param string $url    Key set URL.
