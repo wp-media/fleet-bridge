@@ -536,6 +536,12 @@ final class BridgeTest extends TestCase
 		$this->bridge->verifyGrant($this->vendor->sign($claims), 'settings:read');
 	}
 
+	public function testANonStringLicenceIsRefused(): void
+	{
+		$this->expectRefusal('from another licence');
+		$this->bridge->verifyGrant($this->grant([ 'licence_id' => [ self::LICENCE ] ]), 'settings:read');
+	}
+
 	public function testAnInstallNotToldItsLicenceAcceptsNoGrant(): void
 	{
 		$this->trust->runUnder('');

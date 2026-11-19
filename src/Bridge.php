@@ -257,7 +257,8 @@ final class Bridge implements Verifier
 		}
 
 		if (TrustStore::CONSENT === $role) {
-			$this->assertOwnLicence((string) $claims->get('licence_id', ''));
+			$licence = $claims->get('licence_id', '');
+			$this->assertOwnLicence(is_string($licence) ? $licence : '');
 		}
 
 		$this->spend($claims->identifier(), (int) $payload['exp']);
