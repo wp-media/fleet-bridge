@@ -24,13 +24,18 @@ Every request must carry both:
 | Credential | Header | Signed by | Proves |
 |---|---|---|---|
 | **command** | `Authorization: Bearer` | Fleet | who is asking, and covers the exact body bytes |
-| **consent grant** | your choice | the licence vendor | the owner allows this capability on this site, right now |
+| **consent grant** | your choice | the licence vendor | the owner of the licence installed here allows this capability on this site, right now |
 
 Neither substitutes for the other, and the reasons are worth understanding
 before changing anything here.
 
 **Fleet must not sign the consent.** It is the party being granted the access.
 A grantee attesting its own grant proves nothing at all.
+
+**The consent must come from this install's own licence.** A vendor may let
+the same domain sit on several licences, so a grant that names this host is not
+enough: the grant's `licence_id` must equal the licence this install runs under.
+Without that, anyone who lists your domain on their own licence can consent for it.
 
 **The consent must not be cached.** An install that remembers "allowed" for a
 day keeps accepting commands for a day after the owner withdraws it — and a
@@ -110,6 +115,11 @@ final class MyTrustStore implements TrustStore {
     }
 
     public function keySetUrl( string $role ): string { /* … */ }
+
+    public function licence(): string {
+        // The licence your vendor says this install runs under, from the same
+        // authenticated response as the issuers.
+    }
 }
 ```
 

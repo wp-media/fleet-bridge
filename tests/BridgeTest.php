@@ -33,6 +33,7 @@ final class BridgeTest extends TestCase
 {
 	private const HOST = 'poc.fleet.test';
 	private const SUBJECT = 'grn:2@g1:wprocket:site/poc.fleet.test';
+	private const LICENCE = '291089';
 	private const FLEET = 'grn:2@int:grn::environment/g1:wprocket:fleet.test-suite';
 	private const VENDOR = 'grn:2@int:grn::environment/g1:wprocket:app.test-suite';
 	private const FLEET_KEYS = 'https://fleet.test-suite/api/v1/grnd/jwks';
@@ -81,6 +82,7 @@ final class BridgeTest extends TestCase
 		$this->trust = new ArrayTrustStore();
 		$this->trust->trust(TrustStore::COMMAND, self::FLEET, self::FLEET_KEYS);
 		$this->trust->trust(TrustStore::CONSENT, self::VENDOR, self::VENDOR_KEYS);
+		$this->trust->runUnder(self::LICENCE);
 
 		$this->keySets = new ArrayKeySets();
 		$this->keySets->publish(self::FLEET_KEYS, [ $this->fleet->publicKey() ]);
@@ -515,6 +517,44 @@ final class BridgeTest extends TestCase
 		$this->bridge->verifyGrant($this->grant([ 'scope' => 'settings:read' ]), 'settings:read');
 	}
 
+	// --- whose consent -----------------------------------------------------
+
+	public function testAGrantFromAnotherLicenceListingThisHostIsRefused(): void
+	{
+		/* The takeover: a stranger lists this domain on their own licence, turns
+		 * Fleet on there, and the vendor signs a grant naming this host. */
+		$this->expectRefusal('from another licence');
+		$this->bridge->verifyGrant($this->grant([ 'licence_id' => '999' ]), 'settings:read');
+	}
+
+	public function testAGrantWithoutALicenceIsRefused(): void
+	{
+		$claims = $this->grantClaims();
+		unset($claims['licence_id']);
+
+		$this->expectRefusal('from another licence');
+		$this->bridge->verifyGrant($this->vendor->sign($claims), 'settings:read');
+	}
+
+	public function testAnInstallNotToldItsLicenceAcceptsNoGrant(): void
+	{
+		$this->trust->runUnder('');
+
+		$this->expectRefusal('No licence has been served');
+		$this->bridge->verifyGrant($this->grant(), 'settings:read');
+	}
+
+	public function testACommandNeedsNoLicence(): void
+	{
+		/* Fleet holds no licence of its own; the grant is what binds the request
+		 * to one, so a command is never compared against it. */
+		$this->trust->runUnder('');
+
+		$claims = $this->bridge->verifyCommand('Bearer ' . $this->command(''), '');
+
+		self::assertSame(self::FLEET, $claims->get('iss'));
+	}
+
 	// --- single use ---------------------------------------------------------
 
 	public function testATokenIsAcceptedOnceOnly(): void
@@ -613,7 +653,8 @@ final class BridgeTest extends TestCase
 			'exp'   => $now + 60,
 			'jti'   => 'grn:2@int:grnd::fleet-consent/' . uniqid('', true),
 			'ver'   => Config::VERSION,
-			'scope' => [ 'settings:read', 'settings:write' ],
+			'scope'      => [ 'settings:read', 'settings:write' ],
+			'licence_id' => self::LICENCE,
 		];
 	}
 
